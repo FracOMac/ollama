@@ -939,15 +939,8 @@ func Execute(args []string) error {
 	//	no-mmap
 
 	// Check for OLLAMA_RUNNER_THREADS environment variable to override thread count
-	if envThreads := envconfig.Var("OLLAMA_RUNNER_THREADS"); envThreads != "" {
-		if parsedThreads, err := strconv.Atoi(envThreads); err != nil {
-			slog.Warn("invalid OLLAMA_RUNNER_THREADS value, using default", "value", envThreads, "default", *threads, "error", err)
-		} else if parsedThreads <= 0 {
-			slog.Warn("OLLAMA_RUNNER_THREADS must be a positive integer, using default", "value", parsedThreads, "default", *threads)
-		} else {
-			slog.Debug("using OLLAMA_RUNNER_THREADS", "threads", parsedThreads, "default", *threads)
-			*threads = parsedThreads
-		}
+	if runnerThreads := envconfig.RunnerThreads(); runnerThreads > 0 {
+		*threads = int(runnerThreads)
 	}
 
 	var tensorSplitFloats []float32
